@@ -85,100 +85,102 @@ func (c *rpcClient) callRPC(ctx goctx.Context, conn *Conn, req *tikvrpc.Request)
 	resp := &tikvrpc.Response{}
 	resp.Type = req.Type
 	client := tikvpb.NewTikvClient(conn.ClientConn)
+	childCtx, cancel := goctx.WithCancel(ctx)
+	defer cancel()
 	switch req.Type {
 	case tikvrpc.CmdGet:
-		r, err := client.KvGet(ctx, req.Get)
+		r, err := client.KvGet(childCtx, req.Get)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.Get = r
 		return resp, nil
 	case tikvrpc.CmdScan:
-		r, err := client.KvScan(ctx, req.Scan)
+		r, err := client.KvScan(childCtx, req.Scan)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.Scan = r
 		return resp, nil
 	case tikvrpc.CmdPrewrite:
-		r, err := client.KvPrewrite(ctx, req.Prewrite)
+		r, err := client.KvPrewrite(childCtx, req.Prewrite)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.Prewrite = r
 		return resp, nil
 	case tikvrpc.CmdCommit:
-		r, err := client.KvCommit(ctx, req.Commit)
+		r, err := client.KvCommit(childCtx, req.Commit)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.Commit = r
 		return resp, nil
 	case tikvrpc.CmdCleanup:
-		r, err := client.KvCleanup(ctx, req.Cleanup)
+		r, err := client.KvCleanup(childCtx, req.Cleanup)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.Cleanup = r
 		return resp, nil
 	case tikvrpc.CmdBatchGet:
-		r, err := client.KvBatchGet(ctx, req.BatchGet)
+		r, err := client.KvBatchGet(childCtx, req.BatchGet)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.BatchGet = r
 		return resp, nil
 	case tikvrpc.CmdBatchRollback:
-		r, err := client.KvBatchRollback(ctx, req.BatchRollback)
+		r, err := client.KvBatchRollback(childCtx, req.BatchRollback)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.BatchRollback = r
 		return resp, nil
 	case tikvrpc.CmdScanLock:
-		r, err := client.KvScanLock(ctx, req.ScanLock)
+		r, err := client.KvScanLock(childCtx, req.ScanLock)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.ScanLock = r
 		return resp, nil
 	case tikvrpc.CmdResolveLock:
-		r, err := client.KvResolveLock(ctx, req.ResolveLock)
+		r, err := client.KvResolveLock(childCtx, req.ResolveLock)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.ResolveLock = r
 		return resp, nil
 	case tikvrpc.CmdGC:
-		r, err := client.KvGC(ctx, req.GC)
+		r, err := client.KvGC(childCtx, req.GC)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.GC = r
 		return resp, nil
 	case tikvrpc.CmdRawGet:
-		r, err := client.RawGet(ctx, req.RawGet)
+		r, err := client.RawGet(childCtx, req.RawGet)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.RawGet = r
 		return resp, nil
 	case tikvrpc.CmdRawPut:
-		r, err := client.RawPut(ctx, req.RawPut)
+		r, err := client.RawPut(childCtx, req.RawPut)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.RawPut = r
 		return resp, nil
 	case tikvrpc.CmdRawDelete:
-		r, err := client.RawDelete(ctx, req.RawDelete)
+		r, err := client.RawDelete(childCtx, req.RawDelete)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
 		resp.RawDelete = r
 		return resp, nil
 	case tikvrpc.CmdCop:
-		r, err := client.Coprocessor(ctx, req.Cop)
+		r, err := client.Coprocessor(childCtx, req.Cop)
 		if err != nil {
 			return nil, errors.Trace(err)
 		}
