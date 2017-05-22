@@ -54,21 +54,22 @@ func (d Driver) Open(path string) (kv.Storage, error) {
 		return nil, errors.Trace(err)
 	}
 
-	pdCli, err := pd.NewClient(etcdAddrs)
+	c, err := pd.NewClient(etcdAddrs)
 	if err != nil {
 		if strings.Contains(err.Error(), "i/o timeout") {
 			return nil, errors.Annotate(err, txnRetryableMark)
 		}
 		return nil, errors.Trace(err)
 	}
+	pdClient := NewPDClient(c)
 
 	// FIXME: uuid will be a very long and ugly string, simplify it.
-	uuid := fmt.Sprintf("tikv-%v", pdCli.GetClusterID(goctx.TODO()))
+	uuid := fmt.Sprintf("tikv-%v", pdClient.GetClusterID(goctx.TODO()))
 	if store, ok := mc.cache[uuid]; ok {
 		return store, nil
 	}
 
-	s, err := newTikvStore(uuid, &codecPDClient{pdCli}, newRPCClient(), !disableGC)
+	s, err := newTikvStore(uuid, pdClient, newRPCClient(), !disableGC)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}

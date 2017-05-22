@@ -60,3 +60,39 @@ func decodeRegionMetaKey(r *metapb.Region) error {
 	}
 	return nil
 }
+
+type PDClient struct {
+	*codecPDClient
+}
+
+func NewPDClient(client pd.Client) *PDClient {
+	return &PDClient{&codecPDClient{client}}
+}
+
+func (c *PDClient) GetClusterID(ctx context.Context) uint64 {
+	childCtx, cancel := context.WithCancel(ctx)
+	id := c.codecPDClient.GetClusterID(childCtx)
+	cancel()
+	return id
+}
+
+func (c *PDClient) GetRegion(ctx context.Context, key []byte) (*metapb.Region, *metapb.Peer, error) {
+	childCtx, cancel := context.WithCancel(ctx)
+	region, peer, error := c.codecPDClient.GetRegion(childCtx, key)
+	cancel()
+	return region, peer, error
+}
+
+func (c *PDClient) GetRegionByID(ctx context.Context, regionID uint64) (*metapb.Region, *metapb.Peer, error) {
+	childCtx, cancel := context.WithCancel(ctx)
+	region, peer, error := c.codecPDClient.GetRegionByID(childCtx, regionID)
+	cancel()
+	return region, peer, error
+}
+
+func (c *PDClient) GetStore(ctx context.Context, storeID uint64) (*metapb.Store, error) {
+	childCtx, cancel := context.WithCancel(ctx)
+	store, error := c.codecPDClient.GetStore(childCtx, storeID)
+	cancel()
+	return store, error
+}

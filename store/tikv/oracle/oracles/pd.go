@@ -75,7 +75,9 @@ func (o *pdOracle) GetTimestamp(ctx context.Context) (uint64, error) {
 
 func (o *pdOracle) getTimestamp(ctx context.Context) (uint64, error) {
 	now := time.Now()
-	physical, logical, err := o.c.GetTS(ctx)
+	childCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	physical, logical, err := o.c.GetTS(childCtx)
 	if err != nil {
 		return 0, errors.Trace(err)
 	}

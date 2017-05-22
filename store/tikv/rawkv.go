@@ -33,13 +33,14 @@ type RawKVClient struct {
 
 // NewRawKVClient creates a client with PD cluster addrs.
 func NewRawKVClient(pdAddrs []string) (*RawKVClient, error) {
-	pdCli, err := pd.NewClient(pdAddrs)
+	c, err := pd.NewClient(pdAddrs)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
+	pdClient := NewPDClient(c)
 	return &RawKVClient{
-		clusterID:   pdCli.GetClusterID(goctx.TODO()),
-		regionCache: NewRegionCache(pdCli),
+		clusterID:   pdClient.GetClusterID(goctx.TODO()),
+		regionCache: NewRegionCache(pdClient),
 		rpcClient:   newRPCClient(),
 	}, nil
 }
