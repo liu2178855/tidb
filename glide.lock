@@ -1,5 +1,5 @@
 hash: ca9ea15f859b4f2d6736fc7d2fdf7021c3342e905aeea23ee4d874e8878ba978
-updated: 2017-05-22T20:16:17.792499334+08:00
+updated: 2017-05-23T16:30:54.954716529+08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -62,7 +62,7 @@ imports:
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
 - name: github.com/gorilla/context
-  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+  version: 1ea25387ff6f684839d82767c1733ff4d4d15d0a
 - name: github.com/gorilla/mux
   version: 599cba5e7b6137d46ddf58fb1765f5d928e69604
 - name: github.com/grpc-ecosystem/go-grpc-prometheus
@@ -113,7 +113,7 @@ imports:
   - leveldb/table
   - leveldb/util
 - name: github.com/pingcap/kvproto
-  version: 97d784400a677561daa4e5095c57b68097a5e2f8
+  version: 165e8c0fb7bc3265de835f0cc4898c01161b0884
   subpackages:
   - pkg/coprocessor
   - pkg/eraftpb
@@ -124,7 +124,7 @@ imports:
   - pkg/raft_serverpb
   - pkg/tikvpb
 - name: github.com/pingcap/pd
-  version: d25d61e82835c515bcd07864da3ca76edf679867
+  version: 1b4e791d5f477705003eb791ff7d933bd397795f
   subpackages:
   - pd-client
 - name: github.com/pingcap/tipb
