@@ -575,7 +575,7 @@ type Store struct {
 }
 
 func stack() []byte {
-	buf := make([]byte, 1024)
+	buf := make([]byte, 5120)
 	n := runtime.Stack(buf, false)
 	return buf[:n]
 }
