@@ -2026,7 +2026,7 @@ func (s *test1435Suite) TestIssue1435(c *C) {
 	}
 	// Make sure loading information schema is failed and server is invalid.
 	sessionctx.GetDomain(ctx).MockReloadFailed.SetValue(true)
-	err := sessionctx.GetDomain(ctx).Reload()
+	_, err := sessionctx.GetDomain(ctx).Reload()
 	c.Assert(err, NotNil)
 	lease := sessionctx.GetDomain(ctx).DDL().GetLease()
 	time.Sleep(lease)

@@ -171,7 +171,7 @@ func (s *testDBSuite) testGetTable(c *C, name string) table.Table {
 	ctx := s.s.(context.Context)
 	domain := sessionctx.GetDomain(ctx)
 	// Make sure the table schema is the new schema.
-	err := domain.Reload()
+	_, err := domain.Reload()
 	c.Assert(err, IsNil)
 	tbl, err := domain.InfoSchema().TableByName(model.NewCIStr(s.schemaName), model.NewCIStr(name))
 	c.Assert(err, IsNil)
@@ -890,7 +890,7 @@ func (s *testDBSuite) TestUpdateMultipleTable(c *C) {
 		c.Assert(m.UpdateTable(db.ID, t1Info), IsNil)
 		return nil
 	})
-	err = domain.Reload()
+	_, err = domain.Reload()
 	c.Assert(err, IsNil)
 
 	tk.MustExec("update t1, t2 set t1.c1 = 8, t2.c2 = 10 where t1.c2 = t2.c1")
@@ -906,7 +906,7 @@ func (s *testDBSuite) TestUpdateMultipleTable(c *C) {
 		c.Assert(m.UpdateTable(db.ID, t1Info), IsNil)
 		return nil
 	})
-	err = domain.Reload()
+	_, err = domain.Reload()
 	c.Assert(err, IsNil)
 
 	tk.MustQuery("select * from t1").Check(testkit.Rows("8 1 9", "8 2 9"))

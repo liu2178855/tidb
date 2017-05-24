@@ -32,6 +32,7 @@ const (
 	putKeyNoRetry          = 1
 	putKeyDefaultTimeout   = 3 * time.Second
 	checkVersInterval      = 10 * time.Millisecond
+	putKVInterval          = 10 * time.Millisecond
 )
 
 // checkVersFirstWaitTime is used for testing.
@@ -53,6 +54,7 @@ func (s *schemaVersionSyncer) putKV(ctx goctx.Context, retryCnt int, key, val st
 			return nil
 		}
 		log.Warnf("put schema version %s failed %v no.%d", val, err, i)
+		time.Sleep(putKVInterval)
 	}
 	return errors.Trace(err)
 }
@@ -77,6 +79,18 @@ func (s *schemaVersionSyncer) UpdateSelfVersion(ctx goctx.Context, version int64
 func (s *schemaVersionSyncer) updateLatestVersion(ctx goctx.Context, version int64) error {
 	ver := strconv.FormatInt(version, 10)
 	return s.putKV(ctx, putKeyNoRetry, ddlGlobalSchemaVersion, ver)
+}
+
+func (s *schemaVersionSyncer) IsMatchGlobalVersion(ctx goctx.Context, version int64) error {
+	ver := strconv.FormatInt(version, 10)
+	resp, err := s.etcdCli.Get(ctx, ddlGlobalSchemaVersion)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	if len(resp.Kvs) == 1 && string(resp.Kvs[0].Value) == ver {
+		return nil
+	}
+	return errNotMatchGlobalSchema
 }
 
 func isContextFinished(err error) bool {
@@ -131,3 +145,12 @@ func (s *schemaVersionSyncer) checkAllVersions(ctx goctx.Context, latestVer int6
 		time.Sleep(checkVersInterval)
 	}
 }
+
+// Error codes.
+const (
+	codeNotMatchGlobalSchema terror.ErrCode = 1
+)
+
+var (
+	errNotMatchGlobalSchema = terror.ClassDomain.New(codeNotMatchGlobalSchema, "not match global schema version.")
+)

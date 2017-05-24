@@ -13,9 +13,9 @@
 
 package ddl
 
+/*
 // TODO: Remove the package of integration.
 // The tests are passed here. But import `integration` will introduce a lot of dependencies.
-/*
 import (
 	"fmt"
 	"sync"
@@ -100,6 +100,16 @@ func TestSyncerSimple(t *testing.T) {
 	err = d1.worker.updateLatestVersion(ctx, currentVer)
 	if err != nil {
 		t.Fatalf("update latest schema version failed %v", err)
+	}
+
+	// for match global version
+	err = d.worker.IsMatchGlobalVersion(ctx, 0)
+	if err == nil {
+		t.Fatalf("check result version 0 not match version %v", currentVer)
+	}
+	err = d.worker.IsMatchGlobalVersion(ctx, currentVer)
+	if err != nil {
+		t.Fatalf("match global version failed %v", err)
 	}
 
 	wg.Wait()
