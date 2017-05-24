@@ -15,6 +15,7 @@ package tikv
 
 import (
 	"bytes"
+	"runtime"
 	"sync"
 
 	"github.com/juju/errors"
@@ -23,7 +24,6 @@ import (
 	"github.com/pingcap/kvproto/pkg/kvrpcpb"
 	"github.com/pingcap/kvproto/pkg/metapb"
 	"github.com/pingcap/pd/pd-client"
-	goctx "golang.org/x/net/context"
 )
 
 // RegionCache caches Regions loaded from PD.
@@ -288,6 +288,7 @@ func (c *RegionCache) loadRegion(bo *Backoffer, key []byte) (*Region, error) {
 
 		meta, leader, err := c.pdClient.GetRegion(bo.ctx, key)
 		if err != nil {
+			log.Debugf("loadStore from PD failed, key: %q, err: %v, cause: %v, stack:\n%s", key, err, errors.Cause(err), stack())
 			backoffErr = errors.Errorf("loadRegion from PD failed, key: %q, err: %v", key, err)
 			continue
 		}
@@ -322,6 +323,7 @@ func (c *RegionCache) loadRegionByID(bo *Backoffer, regionID uint64) (*Region, e
 
 		meta, leader, err := c.pdClient.GetRegionByID(bo.ctx, regionID)
 		if err != nil {
+			log.Debugf("loadStore from PD failed, regionID: %v, err: %v, cause: %v, stack:\n%s", regionID, err, errors.Cause(err), stack())
 			backoffErr = errors.Errorf("loadRegion from PD failed, regionID: %v, err: %v", regionID, err)
 			continue
 		}
@@ -382,9 +384,7 @@ func (c *RegionCache) loadStoreAddr(bo *Backoffer, id uint64) (string, error) {
 	for {
 		store, err := c.pdClient.GetStore(bo.ctx, id)
 		if err != nil {
-			if errors.Cause(err) == goctx.Canceled {
-				return "", errors.Trace(err)
-			}
+			log.Debugf("loadStore from PD failed, id: %d, err: %v, cause: %v, stack:\n%s", id, err, errors.Cause(err), stack())
 			err = errors.Errorf("loadStore from PD failed, id: %d, err: %v", id, err)
 			if err = bo.Backoff(boPDRPC, err); err != nil {
 				return "", errors.Trace(err)
@@ -572,4 +572,10 @@ func (r *Region) Contains(key []byte) bool {
 type Store struct {
 	ID   uint64
 	Addr string
+}
+
+func stack() []byte {
+	buf := make([]byte, 1024)
+	n := runtime.Stack(buf, false)
+	return buf[:n]
 }
